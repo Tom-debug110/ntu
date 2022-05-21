@@ -1,7 +1,8 @@
 package main
 
-import "fmt"
+import "ntu/router"
 
 func main() {
-	fmt.Println("hello")
+	r := router.InitRouter()
+	r.Run(":80")
 }
