@@ -1,15 +1,18 @@
 package dao
 
 import (
+	"errors"
 	"ntu/model"
 	"sync"
+
+	"gorm.io/gorm"
 )
 
 type userDAO struct{}
 
 var (
 	userDAOInstance *userDAO
-	userDAOOnce     *sync.Once
+	userDAOOnce     sync.Once
 )
 
 // NewUserDAOInstance 单例模式创建 userDAO 实例
@@ -38,4 +41,15 @@ func (*userDAO) Exist(conditions map[string]interface{}) bool {
 // Create 创建新用户，建立 openID、学号、姓名之间的联系
 func (*userDAO) Create(u *model.User) error {
 	return db.Model(&model.User{}).Create(u).Error
+}
+
+// QueryUserByOpenID 通过OpenID 获取用户的信息
+func (*userDAO) QueryUserByOpenID(openID string) (model.User, error) {
+	var u model.User
+	err := db.Model(&model.User{}).Select("user_id", "name").Where("open_id = ?", openID).First(&u).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return model.User{}, err
+	}
+
+	return u, nil
 }

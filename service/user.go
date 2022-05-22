@@ -35,7 +35,6 @@ func NewUserService(userID int64, openID string) *userService {
 func (u *userService) Exist() respones.Status {
 	res := dao.NewUserDAOInstance().Exist(map[string]interface{}{
 		"open_id": u.OpenID,
-		"user_id": u.UserID,
 	})
 
 	if res {

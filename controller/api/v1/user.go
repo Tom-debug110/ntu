@@ -11,13 +11,8 @@ import (
 
 // Exist 查询用户是否已经注册，即补充完整自己的信息
 func Exist(c *gin.Context) {
-	userID, err := strconv.ParseInt(c.Query("user_id"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, respones.ParamsInvalid)
-		return
-	}
 	openID := c.Request.Header.Get("x-wx-openid")
-	resp := service.NewUserService(userID, openID).Exist()
+	resp := service.NewUserService(0, openID).Exist()
 	c.JSON(http.StatusOK, resp)
 }
 

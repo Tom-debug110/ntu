@@ -1,8 +1,12 @@
 package main
 
-import "ntu/router"
+import (
+	"ntu/dao"
+	"ntu/router"
+)
 
 func main() {
+	dao.InitDB()
 	r := router.InitRouter()
-	r.Run(":80")
+	r.Run(":3000")
 }
