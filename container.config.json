@@ -1,21 +1,21 @@
 {
-	// 本配置文件仅配合模板部署使用，为模板部署的服务生成「服务设置」的初始值。
-	// 模板部署结束后，后续服务发布与本配置文件完全无关，修改「服务设置」请到控制台操作。
-	// 复制模板代码自行开发请忽略本配置文件。
-	"containerPort": 80,                           
-	"minNum": 0,
-	"maxNum": 5,                                   
-	"cpu": 1,          
-	"mem": 2,                                 
-	"policyType": "cpu",                        
-	"policyThreshold": 60,                     
-	"envParams": {},                          
-	"customLogs": "stdout",                   
-	"dataBaseName":"golang_demo",        
-	"executeSQLs":[
-		"CREATE DATABASE IF NOT EXISTS ntu;",
-		"USE ntu;",
-		"create table t_ntu310_users\n(\n    id      bigint unsigned auto_increment\n        primary key,\n    open_id char(30) not null comment '小程序openid',\n    user_id bigint   not null comment '用户学号或者工号',\n    name    char(10) not null comment '用户姓名',\n    constraint open_id\n        unique (open_id),\n    constraint user_id\n        unique (user_id)\n)\n    auto_increment = 2;",
-		"create table t_ntu310_attendance_records\n(\n    id          bigint unsigned auto_increment\n        primary key,\n    user_id     bigint      not null comment '打卡的用户id',\n    sign_in_at  datetime(3) null comment '签到时间',\n    sign_out_at datetime(3) null comment '签退时间'\n);\n"
-	]                                            
+  // 本配置文件仅配合模板部署使用，为模板部署的服务生成「服务设置」的初始值。
+  // 模板部署结束后，后续服务发布与本配置文件完全无关，修改「服务设置」请到控制台操作。
+  // 复制模板代码自行开发请忽略本配置文件。
+  "containerPort": 80,
+  "minNum": 0,
+  "maxNum": 5,
+  "cpu": 1,
+  "mem": 2,
+  "policyType": "cpu",
+  "policyThreshold": 60,
+  "envParams": {},
+  "customLogs": "stdout",
+  "dataBaseName": "ntu",
+  "executeSQLs": [
+    "CREATE DATABASE IF NOT EXISTS ntu;",
+    "USE ntu;",
+    "create table t_ntu310_users\n(\n    id      bigint unsigned auto_increment\n        primary key,\n    open_id char(30) not null comment '小程序openid',\n    user_id bigint   not null comment '用户学号或者工号',\n    name    char(10) not null comment '用户姓名',\n    constraint open_id\n        unique (open_id),\n    constraint user_id\n        unique (user_id)\n)\n    auto_increment = 2;",
+    "create table t_ntu310_attendance_records\n(\n    id          bigint unsigned auto_increment\n        primary key,\n    user_id     bigint      not null comment '打卡的用户id',\n    sign_in_at  datetime(3) null comment '签到时间',\n    sign_out_at datetime(3) null comment '签退时间'\n);\n"
+  ]
 }

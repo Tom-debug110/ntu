@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"ntu/controller/respones"
 	"ntu/dao"
 	"ntu/errno"
@@ -52,6 +53,8 @@ func (u *userService) Register(name string) respones.Status {
 		UserID: u.UserID,
 		Name:   name,
 	}
+
+	fmt.Println(user)
 	err := dao.NewUserDAOInstance().Update(&user)
 	if err != nil {
 		return respones.Status{Code: errno.ErrUserRegisterFail.Code, Message: errno.ErrUserRegisterFail.Message}

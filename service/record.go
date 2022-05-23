@@ -58,7 +58,8 @@ func (r *recordService) Status(userID int64) respones.Record {
 // SignIn 签到服务
 func (*recordService) SignIn(openID string) respones.Status {
 	u, err := dao.NewUserDAOInstance().QueryUserByOpenID(openID)
-	if err != nil {
+
+	if err != nil || errors.Is(err, gorm.ErrRecordNotFound) {
 		return handleErr(errno.ErrQueryUserInfoFail)
 	}
 

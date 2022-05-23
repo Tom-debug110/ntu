@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 
 	"gopkg.in/ini.v1"
@@ -22,9 +23,11 @@ var (
 )
 
 func init() {
-	f, err := ini.Load("./config/config.ini")
+	f, err := ini.Load("config.ini")
 	if err != nil {
+		fmt.Println(err)
 		log.Fatal("配置文件初始化失败")
+		panic(err)
 	}
 
 	loadServer(f)
@@ -51,4 +54,3 @@ func loadDb(file *ini.File) {
 	DbUser = s.Key("DbUser").MustString("root")
 	DbPassWord = s.Key("DbPassWord").MustString("root")
 }
-

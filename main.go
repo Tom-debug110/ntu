@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ntu/config"
 	"ntu/dao"
 	"ntu/router"
 )
@@ -8,5 +9,5 @@ import (
 func main() {
 	dao.InitDB()
 	r := router.InitRouter()
-	r.Run(":3000")
+	r.Run(config.Port)
 }
