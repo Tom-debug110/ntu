@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"fmt"
 	"net/http"
 	"ntu/controller/respones"
 	"ntu/service"
@@ -22,12 +23,13 @@ func timeStampToTime(timeStamp string) (time.Time, error) {
 
 // Status 用户打卡状态
 func Status(c *gin.Context) {
-	date, err := timeStampToTime(c.Query("date"))
+	userID, err := strconv.ParseInt(c.Query("user_id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, respones.ParamsInvalid)
+		c.JSON(http.StatusOK, respones.ParamsInvalid)
 		return
 	}
-	res := service.NewRecordService().Status(date)
+	res := service.NewRecordService().Status(userID)
+	fmt.Println(res)
 	c.JSON(http.StatusOK, res)
 }
 
@@ -44,14 +46,6 @@ func SignOut(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-func TestLate(c *gin.Context) {
-	service.NewRecordService().LateCount(3200421039)
-}
-
-func TestLeave(c *gin.Context) {
-	service.NewRecordService().LeaveCount(3200421039)
-}
-
 // Statistics 打卡统计
 func Statistics(c *gin.Context) {
 	userID, err := strconv.ParseInt(c.Query("user_id"), 10, 64)
@@ -60,5 +54,12 @@ func Statistics(c *gin.Context) {
 		return
 	}
 
-	service.NewRecordService().
+	resp := service.NewRecordService().Statistics(userID)
+	c.JSON(http.StatusOK, resp)
+}
+
+// Rank 排行榜
+func Rank(c *gin.Context) {
+	resp := service.NewRecordService().Rank()
+	c.JSON(http.StatusOK, resp)
 }

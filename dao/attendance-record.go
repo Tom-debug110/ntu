@@ -58,7 +58,7 @@ func (*attendanceDao) QuerySingleRecord(userID int64, expr string) (model.Attend
 		Omit("id").
 		First(&a).Error
 
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil {
 		return model.AttendanceRecord{}, err
 	}
 
@@ -81,10 +81,12 @@ func (*attendanceDao) Update(userID int64, field map[string]interface{}) error {
 }
 
 // QueryTotalHour 查询一定条件下用户的总工时
-func (*attendanceDao) QueryTotalHour(conditions map[string]interface{}) (float64, error) {
-
+func (*attendanceDao) QueryTotalHour(userID int64, expr string) (float64, error) {
 	var r float64
-	err := db.Model(&attendanceDao{}).Select("sum(timeStampDiff(minute,sign_in_at,sign_out_at)) as total").Where(conditions).First(&r).Error
+	err := db.Model(&model.AttendanceRecord{}).
+		Where(map[string]interface{}{"user_id": userID}, expr).
+		Select("sum(timeStampDiff(minute,sign_in_at,sign_out_at))").
+		First(&r).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return 0, err
 	}
@@ -97,7 +99,7 @@ func (*attendanceDao) AverageStatistics(userID int64, expr string) (float64, err
 	var result float64
 	err := db.Model(&model.AttendanceRecord{}).
 		Where(model.AttendanceRecord{UserID: userID}, gorm.Expr(expr)).
-		Select("AVERAGE(timeStampDiff(minute,sign_in_at,sign_out_at))").
+		Select("AVG(timeStampDiff(minute,sign_in_at,sign_out_at))").
 		First(&result).Error
 	if err != nil {
 		return 0, err

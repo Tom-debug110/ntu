@@ -28,19 +28,26 @@ func NewUserDAOInstance() *userDAO {
 // Exist 查询满足条件的用户是否存在
 // 存在返回true 不存在返回false
 // 如果出现错误，返回 false
-func (*userDAO) Exist(conditions map[string]interface{}) bool {
-	var count int64
-	err := db.Model(&model.User{}).Select("id").Where(conditions).Count(&count).Error
-	if err != nil {
-		return false
+func (*userDAO) Exist(conditions map[string]interface{}) (model.User, bool) {
+	var u model.User
+	err := db.Model(&model.User{}).Select([]string{"user_id", "name"}).Where(conditions).First(&u).Error
+	if err != nil || errors.Is(err, gorm.ErrRecordNotFound) {
+		return model.User{}, false
 	}
 
-	return count > 0
+	return u, true
 }
 
 // Create 创建新用户，建立 openID、学号、姓名之间的联系
 func (*userDAO) Create(u *model.User) error {
 	return db.Model(&model.User{}).Create(u).Error
+}
+
+// Update 注册用户时，更新其openid
+func (*userDAO) Update(u *model.User) error {
+	return db.Model(&model.User{}).Where("user_id=?", u.UserID).
+		Select("open_id").
+		Updates(map[string]interface{}{"open_id": u.OpenID}).Error
 }
 
 // QueryUserByOpenID 通过OpenID 获取用户的信息

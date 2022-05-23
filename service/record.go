@@ -1,12 +1,16 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"ntu/controller/respones"
 	"ntu/dao"
 	"ntu/errno"
+	"sort"
 	"sync"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type recordService struct{}
@@ -36,13 +40,19 @@ func (r *recordService) Status(userID int64) respones.Record {
 	t := time.Now()
 	expr := fmt.Sprintf("year(sign_in_at) = %d AND month(sign_in_at)=%d AND day(sign_in_at)=%d", t.Year(), t.Month(), t.Day())
 	res, err := dao.NewAttendDAOInstance().QuerySingleRecord(userID, expr)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return respones.Record{Status: respones.Status{
+			Code:    -1,
+			Message: err.Error(),
+		}}
+	}
 	if err != nil {
 		return respones.Record{Status: respones.Status{
 			Code:    errno.ErrRecordQueryFail.Code,
 			Message: errno.ErrRecordQueryFail.Message,
 		}}
 	}
-	return respones.Record{Status: respones.OK, SignIn: res.SignInAt.Unix(), SingOut: res.SignOutAt.Unix()}
+	return respones.Record{Status: respones.OK, SignIn: res.SignInAt.Unix(), SignOut: res.SignOutAt.Unix()}
 }
 
 // SignIn 签到服务
@@ -77,26 +87,26 @@ func (*recordService) SignOut(openID string) respones.Status {
 }
 
 // Rank 工时排行榜
-func (*recordService) Rank(curTime time.Time) respones.Rank {
+func (*recordService) Rank() respones.Rank {
+	t := time.Now()
+	expr := fmt.Sprintf("year(sign_in_at) = %d AND month(sign_in_at)=%d AND sign_in_at not null AND sign_out_at not null", t.Year(), t.Month())
 	users, err := dao.NewUserDAOInstance().QueryUsers(map[string]interface{}{})
 	if err != nil {
 		return respones.Rank{Status: handleErr(errno.ErrQueryUserListFail)}
 	}
 	var u []respones.UserAPI
 	for _, i := range users {
-		resp, _ := dao.NewAttendDAOInstance().QueryTotalHour(map[string]interface{}{
-			"user_id":           i.UserID,
-			"year(sign_in_at)":  curTime.Year(),
-			"month(sign_in_at)": curTime.Month(),
-			"sign_out_at":       "not null",
-		})
+		resp, _ := dao.NewAttendDAOInstance().QueryTotalHour(i.UserID, expr)
 		u = append(u, respones.UserAPI{
 			UserID:    i.UserID,
 			Name:      i.Name,
-			TotalHour: resp,
+			TotalHour: resp / 60,
 		})
 	}
 
+	sort.Slice(u, func(i, j int) bool {
+		return u[i].TotalHour > u[j].TotalHour
+	})
 	return respones.Rank{Status: respones.OK, Users: u}
 }
 
@@ -115,7 +125,7 @@ func lateCount(userID int64) int64 {
 // 统计早退次数
 func leaveCount(userID int64) int64 {
 	t := time.Now()
-	expr := fmt.Sprintf("year(sign_in_at) = %d AND month(sign_in_at)=%d AND sign_out_at IS NULL", t.Year(), t.Month())
+	expr := fmt.Sprintf("year(sign_in_at) = %d AND month(sign_in_at)=%d AND (sign_out_at IS NULL OR hour(sign_out_at)<21)", t.Year(), t.Month())
 	res, err := dao.NewAttendDAOInstance().LeaveCountStatistics(userID, expr)
 	if err != nil {
 		return 0
@@ -126,7 +136,7 @@ func leaveCount(userID int64) int64 {
 // 统计平均打卡时间
 func averageStatistics(userID int64) float64 {
 	t := time.Now()
-	expr := fmt.Sprintf("year(sign_in_at) = %d AND month(sign_in_at)=%d AND sign_out_at NOT NULL AND sign_in_at NOT NULL", t.Year(), t.Month())
+	expr := fmt.Sprintf("year(sign_in_at) = %d AND month(sign_in_at)=%d AND sign_out_at IS NOT NULL AND sign_in_at IS NOT NULL", t.Year(), t.Month())
 	res, err := dao.NewAttendDAOInstance().AverageStatistics(userID, expr)
 	if err != nil {
 		return 0
@@ -154,7 +164,7 @@ func (*recordService) Statistics(userID int64) respones.Statistics {
 	return respones.Statistics{
 		Status: respones.OK,
 		Total: respones.Total{
-			Average:    average,
+			Average:    average / 60,
 			LateCount:  late,
 			LeaveCount: leave,
 		},

@@ -32,16 +32,18 @@ func NewUserService(userID int64, openID string) *userService {
 
 // Exist 用户是否存在
 // 判断数据库中userID和OpenID绑定
-func (u *userService) Exist() respones.Status {
-	res := dao.NewUserDAOInstance().Exist(map[string]interface{}{
+func (u *userService) Exist() respones.Exist {
+	user, ok := dao.NewUserDAOInstance().Exist(map[string]interface{}{
 		"open_id": u.OpenID,
 	})
 
-	if res {
-		return respones.OK
+	if !ok {
+		return respones.Exist{
+			Status: respones.Status{Code: errno.ErrUserNotExist.Code, Message: errno.ErrUserNotExist.Message},
+		}
 	}
 
-	return respones.Status{Code: errno.ErrUserNotExist.Code, Message: errno.ErrUserNotExist.Message}
+	return respones.Exist{Status: respones.OK, User: user}
 }
 
 func (u *userService) Register(name string) respones.Status {
@@ -50,7 +52,7 @@ func (u *userService) Register(name string) respones.Status {
 		UserID: u.UserID,
 		Name:   name,
 	}
-	err := dao.NewUserDAOInstance().Create(&user)
+	err := dao.NewUserDAOInstance().Update(&user)
 	if err != nil {
 		return respones.Status{Code: errno.ErrUserRegisterFail.Code, Message: errno.ErrUserRegisterFail.Message}
 	}
