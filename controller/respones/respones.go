@@ -31,8 +31,13 @@ type Rank struct {
 	Users []UserAPI `json:"user"`
 }
 
-type Statistics struct {
+type Total struct {
 	Average    float64 `json:"average_hour"`
-	LateCount  int     `json:"late_count"`
-	LeaveCount int     `json:"leave_count"`
+	LateCount  int64   `json:"late_count"`
+	LeaveCount int64   `json:"leave_count"`
+}
+type Statistics struct {
+	Status
+	Total   Total                    `json:"total"`
+	Records []model.AttendanceRecord `json:"details"`
 }

@@ -47,3 +47,18 @@ func SignOut(c *gin.Context) {
 func TestLate(c *gin.Context) {
 	service.NewRecordService().LateCount(3200421039)
 }
+
+func TestLeave(c *gin.Context) {
+	service.NewRecordService().LeaveCount(3200421039)
+}
+
+// Statistics 打卡统计
+func Statistics(c *gin.Context) {
+	userID, err := strconv.ParseInt(c.Query("user_id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusOK, respones.ParamsInvalid)
+		return
+	}
+
+	service.NewRecordService().
+}

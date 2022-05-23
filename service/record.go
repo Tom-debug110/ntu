@@ -32,12 +32,10 @@ func NewRecordService() *recordService {
 }
 
 // Status 当天的打卡状态
-func (r *recordService) Status(curTime time.Time) respones.Record {
-	res, err := dao.NewAttendDAOInstance().QuerySingleRecord(map[string]interface{}{
-		"year(sign_in_at)":  curTime.Year(),
-		"month(sign_in_at)": curTime.Month(),
-		"day(sign_in_at)":   curTime.Day(),
-	}, "sign_in_at", "sign_out_at")
+func (r *recordService) Status(userID int64) respones.Record {
+	t := time.Now()
+	expr := fmt.Sprintf("year(sign_in_at) = %d AND month(sign_in_at)=%d AND day(sign_in_at)=%d", t.Year(), t.Month(), t.Day())
+	res, err := dao.NewAttendDAOInstance().QuerySingleRecord(userID, expr)
 	if err != nil {
 		return respones.Record{Status: respones.Status{
 			Code:    errno.ErrRecordQueryFail.Code,
@@ -102,7 +100,8 @@ func (*recordService) Rank(curTime time.Time) respones.Rank {
 	return respones.Rank{Status: respones.OK, Users: u}
 }
 
-func (*recordService) LateCount(userID int64) int64 {
+// 统计迟到次数
+func lateCount(userID int64) int64 {
 	t := time.Now()
 	expr := fmt.Sprintf("year(sign_in_at) = %d AND month(sign_in_at)=%d AND hour(sign_in_at)>%d", t.Year(), t.Month(), 9)
 	res, err := dao.NewAttendDAOInstance().LateCountStatistics(userID, expr)
@@ -111,4 +110,54 @@ func (*recordService) LateCount(userID int64) int64 {
 	}
 
 	return res
+}
+
+// 统计早退次数
+func leaveCount(userID int64) int64 {
+	t := time.Now()
+	expr := fmt.Sprintf("year(sign_in_at) = %d AND month(sign_in_at)=%d AND sign_out_at IS NULL", t.Year(), t.Month())
+	res, err := dao.NewAttendDAOInstance().LeaveCountStatistics(userID, expr)
+	if err != nil {
+		return 0
+	}
+	return res
+}
+
+// 统计平均打卡时间
+func averageStatistics(userID int64) float64 {
+	t := time.Now()
+	expr := fmt.Sprintf("year(sign_in_at) = %d AND month(sign_in_at)=%d AND sign_out_at NOT NULL AND sign_in_at NOT NULL", t.Year(), t.Month())
+	res, err := dao.NewAttendDAOInstance().AverageStatistics(userID, expr)
+	if err != nil {
+		return 0
+	}
+	return res
+}
+
+func (*recordService) Statistics(userID int64) respones.Statistics {
+	t := time.Now()
+	expr := fmt.Sprintf("year(sign_in_at) = %d AND month(sign_in_at)=%d", t.Year(), t.Month())
+	average := averageStatistics(userID)
+	late := lateCount(userID)
+	leave := leaveCount(userID)
+
+	detail, err := dao.NewAttendDAOInstance().QueryRecords(userID, expr)
+	if err != nil {
+		return respones.Statistics{
+			Status: respones.Status{
+				Code:    errno.ErrRecordQueryFail.Code,
+				Message: errno.ErrRecordQueryFail.Message,
+			},
+		}
+	}
+
+	return respones.Statistics{
+		Status: respones.OK,
+		Total: respones.Total{
+			Average:    average,
+			LateCount:  late,
+			LeaveCount: leave,
+		},
+		Records: detail,
+	}
 }

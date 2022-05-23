@@ -39,18 +39,24 @@ func NewAttendDAOInstance() *attendanceDao {
 }
 
 // QueryRecords 批量查询一批记录
-func (*attendanceDao) QueryRecords(conditions map[string]interface{}, field ...string) ([]model.AttendanceRecord, error) {
+func (*attendanceDao) QueryRecords(userID int64, expr string) ([]model.AttendanceRecord, error) {
 	var a []model.AttendanceRecord
-	err := db.Model(&model.AttendanceRecord{}).Where(conditions).Select(field).Find(&a).Error
+	err := db.Model(&model.AttendanceRecord{}).
+		Where(map[string]interface{}{"user_id": userID}, gorm.Expr(expr)).
+		Omit("id").
+		Find(&a).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 	return a, nil
 }
 
-func (*attendanceDao) QuerySingleRecord(conditions map[string]interface{}, field ...string) (model.AttendanceRecord, error) {
+func (*attendanceDao) QuerySingleRecord(userID int64, expr string) (model.AttendanceRecord, error) {
 	var a model.AttendanceRecord
-	err := db.Model(&model.AttendanceRecord{}).Where(conditions).Select(field).First(&a).Error
+	err := db.Model(&model.AttendanceRecord{}).
+		Where(map[string]interface{}{"user_id": userID}, gorm.Expr(expr)).
+		Omit("id").
+		First(&a).Error
 
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return model.AttendanceRecord{}, err
@@ -87,9 +93,12 @@ func (*attendanceDao) QueryTotalHour(conditions map[string]interface{}) (float64
 
 // AverageStatistics 平均时长
 // 精确到分钟
-func (*attendanceDao) AverageStatistics(conditions map[string]interface{}) (float64, error) {
+func (*attendanceDao) AverageStatistics(userID int64, expr string) (float64, error) {
 	var result float64
-	err := db.Model(&model.AttendanceRecord{}).Where(conditions).Select("AVERAGE(timeStampDiff(minute,sign_in_at,sign_out_at))").First(&result).Error
+	err := db.Model(&model.AttendanceRecord{}).
+		Where(model.AttendanceRecord{UserID: userID}, gorm.Expr(expr)).
+		Select("AVERAGE(timeStampDiff(minute,sign_in_at,sign_out_at))").
+		First(&result).Error
 	if err != nil {
 		return 0, err
 	}
@@ -116,7 +125,7 @@ func (*attendanceDao) LeaveCountStatistics(userID int64, expr string) (int64, er
 		gorm.Expr(expr)).
 		Select("count(*)").
 		First(&count).Error
-	if err != nil {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return 0, err
 	}
 	return count, nil
