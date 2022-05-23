@@ -53,3 +53,14 @@ func (*userDAO) QueryUserByOpenID(openID string) (model.User, error) {
 
 	return u, nil
 }
+
+// QueryUsers 查询用户列表
+func (*userDAO) QueryUsers(conditions map[string]interface{}) ([]model.User, error) {
+	var u []model.User
+	err := db.Model(model.User{}).Where(conditions).Select("user_id", "name").Find(&u).Error
+
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+	return u, nil
+}

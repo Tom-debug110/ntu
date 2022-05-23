@@ -43,3 +43,7 @@ func SignOut(c *gin.Context) {
 	resp := service.NewRecordService().SignOut(openid)
 	c.JSON(http.StatusOK, resp)
 }
+
+func TestLate(c *gin.Context) {
+	service.NewRecordService().LateCount(3200421039)
+}

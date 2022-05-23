@@ -1,5 +1,7 @@
 package respones
 
+import "ntu/model"
+
 type Status struct {
 	Code    int    `json:"status_code"`
 	Message string `json:"status_msg"`
@@ -12,4 +14,25 @@ type Record struct {
 	Status
 	SignIn  int64 `json:"sign_in"`
 	SingOut int64 `json:"sing_out"`
+}
+
+type UserList struct {
+	Status
+	Users []model.User `json:"user"`
+}
+
+type UserAPI struct {
+	UserID    int64
+	Name      string
+	TotalHour float64
+}
+type Rank struct {
+	Status
+	Users []UserAPI `json:"user"`
+}
+
+type Statistics struct {
+	Average    float64 `json:"average_hour"`
+	LateCount  int     `json:"late_count"`
+	LeaveCount int     `json:"leave_count"`
 }

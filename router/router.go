@@ -15,6 +15,7 @@ func InitRouter() *gin.Engine {
 	r.GET("/attendance-record/status/", v1.Status)      //打卡状态
 	r.POST("/attendance-record/sign-in/", v1.SignIn)    //签到
 	r.POST("/attendance-record/sign-out/", v1.SignOut)  //签退
+	r.GET("/test/", v1.TestLate)                        //测试
 
 	r.GET("/attendance-record/statistics/", demo.Statistics)
 	r.GET("/attendance-record/member-list/", demo.MemberList)

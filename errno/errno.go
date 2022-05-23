@@ -10,6 +10,7 @@ var (
 	ErrUserNotExist      = &Errno{Code: 10101, Message: "非实验室成员"}
 	ErrUserRegisterFail  = &Errno{Code: 10102, Message: "用户注册失败"}
 	ErrQueryUserInfoFail = &Errno{Code: 10103, Message: "查询用户信息失败"}
+	ErrQueryUserListFail = &Errno{Code: 10104, Message: "查询用户列表失败"}
 
 	//打卡记录相关 102开头
 	ErrRecordQueryFail = &Errno{Code: 10201, Message: "查询记录失败"}

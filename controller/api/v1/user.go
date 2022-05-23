@@ -33,3 +33,9 @@ func Register(c *gin.Context) {
 	resp := service.NewUserService(userID, openID).Register(name)
 	c.JSON(http.StatusOK, resp)
 }
+
+// List 成员列表
+func List(c *gin.Context) {
+	resp := service.NewUserService(0, "").List()
+	c.JSON(http.StatusOK, resp)
+}

@@ -4,10 +4,10 @@ import "time"
 
 // User 用户实体
 type User struct {
-	ID     uint
-	OpenID string `gorm:"type:char(30);unique;not null;comment:小程序openid"`
-	UserID int64  `gorm:"unique;not null;comment:用户学号或者工号"`
-	Name   string `gorm:"type:char(10);not null;comment:用户姓名"`
+	ID     uint   `json:"id,omitempty"`
+	OpenID string `gorm:"type:char(30);unique;not null;comment:小程序openid" json:"open_id,omitempty"`
+	UserID int64  `gorm:"unique;not null;comment:用户学号或者工号" json:"user_id,omitempty"`
+	Name   string `gorm:"type:char(10);not null;comment:用户姓名" json:"name,omitempty"`
 }
 
 // AttendanceRecord 打卡记录

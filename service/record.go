@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"ntu/controller/respones"
 	"ntu/dao"
 	"ntu/errno"
@@ -75,4 +76,39 @@ func (*recordService) SignOut(openID string) respones.Status {
 	}
 
 	return respones.OK
+}
+
+// Rank 工时排行榜
+func (*recordService) Rank(curTime time.Time) respones.Rank {
+	users, err := dao.NewUserDAOInstance().QueryUsers(map[string]interface{}{})
+	if err != nil {
+		return respones.Rank{Status: handleErr(errno.ErrQueryUserListFail)}
+	}
+	var u []respones.UserAPI
+	for _, i := range users {
+		resp, _ := dao.NewAttendDAOInstance().QueryTotalHour(map[string]interface{}{
+			"user_id":           i.UserID,
+			"year(sign_in_at)":  curTime.Year(),
+			"month(sign_in_at)": curTime.Month(),
+			"sign_out_at":       "not null",
+		})
+		u = append(u, respones.UserAPI{
+			UserID:    i.UserID,
+			Name:      i.Name,
+			TotalHour: resp,
+		})
+	}
+
+	return respones.Rank{Status: respones.OK, Users: u}
+}
+
+func (*recordService) LateCount(userID int64) int64 {
+	t := time.Now()
+	expr := fmt.Sprintf("year(sign_in_at) = %d AND month(sign_in_at)=%d AND hour(sign_in_at)>%d", t.Year(), t.Month(), 9)
+	res, err := dao.NewAttendDAOInstance().LateCountStatistics(userID, expr)
+	if err != nil {
+		return 0
+	}
+
+	return res
 }

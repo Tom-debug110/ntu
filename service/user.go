@@ -56,3 +56,12 @@ func (u *userService) Register(name string) respones.Status {
 	}
 	return respones.OK
 }
+
+func (*userService) List() respones.UserList {
+	u, err := dao.NewUserDAOInstance().QueryUsers(map[string]interface{}{})
+	if err != nil {
+		return respones.UserList{Status: handleErr(errno.ErrQueryUserListFail)}
+	}
+
+	return respones.UserList{Status: respones.OK, Users: u}
+}
