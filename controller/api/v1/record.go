@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"net/http"
 	"ntu/controller/respones"
 	"ntu/service"
@@ -29,7 +28,6 @@ func Status(c *gin.Context) {
 		return
 	}
 	res := service.NewRecordService().Status(userID)
-	fmt.Println(res)
 	c.JSON(http.StatusOK, res)
 }
 

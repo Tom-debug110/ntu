@@ -12,8 +12,8 @@ var ParamsInvalid = Status{Code: -1, Message: "请求参数错误"}
 
 type Record struct {
 	Status
-	SignIn  int64 `json:"sign_in,omitempty"`
-	SignOut int64 `json:"sing_out,omitempty"`
+	SignIn  string `json:"sign_in,omitempty"`
+	SignOut string `json:"sign_out,omitempty"`
 }
 
 type UserList struct {

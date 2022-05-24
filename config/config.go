@@ -23,7 +23,7 @@ var (
 )
 
 func init() {
-	f, err := ini.Load("config.ini")
+	f, err := ini.Load("./config/config.ini")
 	if err != nil {
 		fmt.Println(err)
 		log.Fatal("配置文件初始化失败")

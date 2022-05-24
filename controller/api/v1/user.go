@@ -1,8 +1,10 @@
 package v1
 
 import (
+	"fmt"
 	"net/http"
 	"ntu/controller/respones"
+	"ntu/model"
 	"ntu/service"
 	"strconv"
 
@@ -12,7 +14,7 @@ import (
 // Exist 查询用户是否已经注册，即补充完整自己的信息
 func Exist(c *gin.Context) {
 	openID := c.Request.Header.Get("x-wx-openid")
-	resp := service.NewUserService(0, openID).Exist()
+	resp := service.NewUserService().Exist(openID)
 	c.JSON(http.StatusOK, resp)
 }
 
@@ -30,12 +32,18 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	resp := service.NewUserService(userID, openID).Register(name)
+	fmt.Println("controller->user->34:", userID, openID, name)
+	u := model.User{
+		OpenID: openID,
+		UserID: userID,
+		Name:   name,
+	}
+	resp := service.NewUserService().Register(&u)
 	c.JSON(http.StatusOK, resp)
 }
 
 // List 成员列表
 func List(c *gin.Context) {
-	resp := service.NewUserService(0, "").List()
+	resp := service.NewUserService().List()
 	c.JSON(http.StatusOK, resp)
 }

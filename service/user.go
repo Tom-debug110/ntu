@@ -20,22 +20,19 @@ var (
 )
 
 // NewUserService 创建 userService 实例
-func NewUserService(userID int64, openID string) *userService {
+func NewUserService() *userService {
 	userServiceOnce.Do(
 		func() {
-			userServiceInstance = &userService{
-				UserID: userID,
-				OpenID: openID,
-			}
+			userServiceInstance = &userService{}
 		})
 	return userServiceInstance
 }
 
 // Exist 用户是否存在
 // 判断数据库中userID和OpenID绑定
-func (u *userService) Exist() respones.Exist {
+func (*userService) Exist(openID string) respones.Exist {
 	user, ok := dao.NewUserDAOInstance().Exist(map[string]interface{}{
-		"open_id": u.OpenID,
+		"open_id": openID,
 	})
 
 	if !ok {
@@ -47,15 +44,10 @@ func (u *userService) Exist() respones.Exist {
 	return respones.Exist{Status: respones.OK, User: user}
 }
 
-func (u *userService) Register(name string) respones.Status {
-	user := model.User{
-		OpenID: u.OpenID,
-		UserID: u.UserID,
-		Name:   name,
-	}
+func (*userService) Register(u *model.User) respones.Status {
 
-	fmt.Println(user)
-	err := dao.NewUserDAOInstance().Update(&user)
+	fmt.Println("service->user->57:", u)
+	err := dao.NewUserDAOInstance().Update(u)
 	if err != nil {
 		return respones.Status{Code: errno.ErrUserRegisterFail.Code, Message: errno.ErrUserRegisterFail.Message}
 	}

@@ -41,8 +41,9 @@ func (r *recordService) Status(userID int64) respones.Record {
 	expr := fmt.Sprintf("year(sign_in_at) = %d AND month(sign_in_at)=%d AND day(sign_in_at)=%d", t.Year(), t.Month(), t.Day())
 	res, err := dao.NewAttendDAOInstance().QuerySingleRecord(userID, expr)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
+		// 没有当天的打卡记录
 		return respones.Record{Status: respones.Status{
-			Code:    -1,
+			Code:    0,
 			Message: err.Error(),
 		}}
 	}
@@ -52,7 +53,7 @@ func (r *recordService) Status(userID int64) respones.Record {
 			Message: errno.ErrRecordQueryFail.Message,
 		}}
 	}
-	return respones.Record{Status: respones.OK, SignIn: res.SignInAt.Unix(), SignOut: res.SignOutAt.Unix()}
+	return respones.Record{Status: respones.OK, SignIn: res.SignInAt.Format("2006-01-02T15:04:05+8:00"), SignOut: res.SignOutAt.Format("2006-01-02T15:04:05+8:00")}
 }
 
 // SignIn 签到服务
