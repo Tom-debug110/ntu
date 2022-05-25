@@ -177,6 +177,11 @@ func (*recordService) Statistics(userID int64) respones.Statistics {
 		})
 	}
 
+	// 打卡记录升序排列
+	sort.Slice(details, func(i, j int) bool {
+		return details[i].SignIn < details[j].SignIn
+	})
+
 	return respones.Statistics{
 		Status: respones.OK,
 		Total: respones.Total{
