@@ -53,7 +53,14 @@ func (r *recordService) Status(userID int64) respones.Record {
 			Message: errno.ErrRecordQueryFail.Message,
 		}}
 	}
-	return respones.Record{Status: respones.OK, SignIn: res.SignInAt.UnixMilli(), SignOut: res.SignOutAt.UnixMilli()}
+
+	handleTime := func(t time.Time) int64 {
+		if t.IsZero() {
+			return 0
+		}
+		return t.UnixMilli()
+	}
+	return respones.Record{Status: respones.OK, SignIn: handleTime(res.SignInAt), SignOut: handleTime(res.SignOutAt)}
 }
 
 // SignIn 签到服务
