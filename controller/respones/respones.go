@@ -12,8 +12,8 @@ var ParamsInvalid = Status{Code: -1, Message: "请求参数错误"}
 
 type Record struct {
 	Status
-	SignIn  string `json:"sign_in,omitempty"`
-	SignOut string `json:"sign_out,omitempty"`
+	SignIn  int64 `json:"sign_in,omitempty"`
+	SignOut int64 `json:"sign_out,omitempty"`
 }
 
 type UserList struct {
@@ -38,8 +38,8 @@ type Total struct {
 }
 type Statistics struct {
 	Status
-	Total   Total                    `json:"total"`
-	Records []model.AttendanceRecord `json:"details"`
+	Total   Total    `json:"total"`
+	Records []Record `json:"details"`
 }
 type Exist struct {
 	Status

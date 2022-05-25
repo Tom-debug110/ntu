@@ -53,7 +53,7 @@ func (r *recordService) Status(userID int64) respones.Record {
 			Message: errno.ErrRecordQueryFail.Message,
 		}}
 	}
-	return respones.Record{Status: respones.OK, SignIn: res.SignInAt.Format("2006-01-02T15:04:05+8:00"), SignOut: res.SignOutAt.Format("2006-01-02T15:04:05+8:00")}
+	return respones.Record{Status: respones.OK, SignIn: res.SignInAt.UnixMilli(), SignOut: res.SignOutAt.UnixMilli()}
 }
 
 // SignIn 签到服务
@@ -153,7 +153,7 @@ func (*recordService) Statistics(userID int64) respones.Statistics {
 	late := lateCount(userID)
 	leave := leaveCount(userID)
 
-	detail, err := dao.NewAttendDAOInstance().QueryRecords(userID, expr)
+	r, err := dao.NewAttendDAOInstance().QueryRecords(userID, expr)
 	if err != nil {
 		return respones.Statistics{
 			Status: respones.Status{
@@ -161,6 +161,13 @@ func (*recordService) Statistics(userID int64) respones.Statistics {
 				Message: errno.ErrRecordQueryFail.Message,
 			},
 		}
+	}
+	var details []respones.Record
+	for _, i := range r {
+		details = append(details, respones.Record{
+			SignIn:  i.SignInAt.UnixMilli(),
+			SignOut: i.SignOutAt.UnixMilli(),
+		})
 	}
 
 	return respones.Statistics{
@@ -170,6 +177,6 @@ func (*recordService) Statistics(userID int64) respones.Statistics {
 			LateCount:  late,
 			LeaveCount: leave,
 		},
-		Records: detail,
+		Records: details,
 	}
 }
