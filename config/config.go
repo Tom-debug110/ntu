@@ -26,7 +26,7 @@ func init() {
 	f, err := ini.Load("./config.ini")
 	if err != nil {
 		fmt.Println(err)
-		log.Fatal("配置文件初始化失败")
+		log.Println("配置文件初始化失败")
 		panic(err)
 	}
 

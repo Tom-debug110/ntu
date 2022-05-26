@@ -58,7 +58,7 @@ func (*attendanceDao) QuerySingleRecord(userID int64, expr string) (model.Attend
 		Omit("id").
 		First(&a).Error
 
-	if err != nil {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return model.AttendanceRecord{}, err
 	}
 
@@ -76,20 +76,22 @@ func (*attendanceDao) Create(userID int64) error {
 }
 
 // Update 更新记录
-func (*attendanceDao) Update(userID int64, field map[string]interface{}) error {
-	return db.Model(&model.AttendanceRecord{}).Where("user_id = ?", userID).Updates(field).Error
+func (*attendanceDao) Update(expr string, field map[string]interface{}) error {
+	return db.Model(&model.AttendanceRecord{}).Where(gorm.Expr(expr)).Updates(field).Error
 }
 
 // QueryTotalHour 查询一定条件下用户的总工时
 func (*attendanceDao) QueryTotalHour(userID int64, expr string) (float64, error) {
 	var r float64
-	err := db.Model(&model.AttendanceRecord{}).
+	var c int64
+	tempDB := db.Model(&model.AttendanceRecord{}).
 		Where(map[string]interface{}{"user_id": userID}, expr).
 		Select("sum(timeStampDiff(minute,sign_in_at,sign_out_at))").
-		First(&r).Error
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return 0, err
+		Count(&c)
+	if tempDB.Error != nil && errors.Is(tempDB.Error, gorm.ErrRecordNotFound) || c == 0 {
+		return 0, tempDB.Error
 	}
+	tempDB.First(&r)
 	return r, nil
 }
 
