@@ -83,8 +83,7 @@ func (*recordService) SignOut(openID string) respones.Status {
 		"AND month(sign_in_at)=%d "+
 		"AND day(sign_in_at) =%d "+
 		"AND user_id = %d "+
-		"AND sign_in_at is not null"+
-		" AND sign_out_at is null", t.Year(), t.Month(), t.Day(), u.UserID)
+		"AND sign_in_at is not null", t.Year(), t.Month(), t.Day(), u.UserID)
 	err = dao.NewAttendDAOInstance().Update(expr, map[string]interface{}{
 		"sign_out_at": time.Now().Format(time.RFC3339),
 	})
