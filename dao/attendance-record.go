@@ -85,7 +85,7 @@ func (*attendanceDao) QueryTotalHour(userID int64, expr string) (float64, error)
 	var r float64
 	var c int64
 	tempDB := db.Model(&model.AttendanceRecord{}).
-		Where(map[string]interface{}{"user_id": userID}, expr).
+		Where(map[string]interface{}{"user_id": userID}, gorm.Expr(expr)).
 		Select("sum(timeStampDiff(minute,sign_in_at,sign_out_at))").
 		Count(&c)
 	if tempDB.Error != nil && errors.Is(tempDB.Error, gorm.ErrRecordNotFound) || c == 0 {
