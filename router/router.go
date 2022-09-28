@@ -9,6 +9,8 @@ import (
 func InitRouter() *gin.Engine {
 	r := gin.Default()
 
+	r.GET("/mac-config/update", v1.MacAddressUpdate)       //更新 mac 地址
+	r.POST("./mac-config/query", v1.MacAddressQuery)       // 查询mac 地址
 	r.GET("/attendance-record/user/status/", v1.Exist)     //用户状态
 	r.POST("/attendance-record/register/", v1.Register)    //用户注册、完善信息
 	r.GET("/attendance-record/status/", v1.Status)         //打卡状态

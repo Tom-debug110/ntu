@@ -17,3 +17,7 @@ type AttendanceRecord struct {
 	SignInAt  time.Time `gorm:"comment:签到时间" json:"sign_in"`
 	SignOutAt time.Time `gorm:"comment:签退时间" json:"sign_out"`
 }
+
+type MacAddress struct {
+	ID string `json:"mac_address"`
+}
