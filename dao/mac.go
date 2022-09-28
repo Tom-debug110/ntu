@@ -19,8 +19,8 @@ func NewMac() *Mac {
 	return MacDaoInstance
 }
 
-func (*Mac) Set(macAddress string) error {
-	return db.Model(model.MacAddress{}).Update("id", macAddress).Error
+func (*Mac) Set(newMac, oldMac string) error {
+	return db.Model(model.MacAddress{}).Where("id=?", oldMac).Update("id", newMac).Error
 }
 
 func (*Mac) Query() (string, error) {

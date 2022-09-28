@@ -20,8 +20,9 @@ func NewMac() *Mac {
 	return macServiceInstance
 }
 
-func (*Mac) Update(macAddress string) error {
-	return dao.NewMac().Set(macAddress)
+func (m *Mac) Update(macAddress string) error {
+	old, _ := m.Query()
+	return dao.NewMac().Set(macAddress, old)
 }
 
 func (*Mac) Query() (string, error) {

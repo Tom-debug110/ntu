@@ -37,7 +37,7 @@ func InitDB() {
 		panic(err)
 	}
 
-	err = db.AutoMigrate(&model.User{}, &model.AttendanceRecord{}) //TODO 数据库自动迁移
+	err = db.AutoMigrate(&model.User{}, &model.AttendanceRecord{}, &model.MacAddress{}) //TODO 数据库自动迁移
 	if err != nil {
 		log.Println("数据库自动迁移失败，err:", err)
 	}

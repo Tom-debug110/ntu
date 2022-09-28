@@ -72,6 +72,7 @@ func (*recordService) SignIn(openID string) respones.Status {
 	return respones.OK
 }
 
+// SignOut 签退操作 如果之前已经签退，则更新原来数据
 func (*recordService) SignOut(openID string) respones.Status {
 	u, err := dao.NewUserDAOInstance().QueryUserByOpenID(openID)
 	if err != nil {
@@ -97,7 +98,7 @@ func (*recordService) SignOut(openID string) respones.Status {
 // Rank 工时排行榜
 func (*recordService) Rank() respones.Rank {
 	t := time.Now()
-	expr := fmt.Sprintf("year(sign_in_at) = %d AND month(sign_in_at) = %d AND sign_in_at not null AND sign_out_at not null", t.Year(), t.Month())
+	expr := fmt.Sprintf("year(sign_in_at) = %d AND month(sign_in_at) = %d AND sign_in_at is not null AND sign_out_at is not null", t.Year(), t.Month())
 	users, err := dao.NewUserDAOInstance().QueryUsers(map[string]interface{}{})
 	if err != nil {
 		return respones.Rank{Status: handleErr(errno.ErrQueryUserListFail)}
