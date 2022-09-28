@@ -33,7 +33,8 @@ func MacAddressQuery(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"status":      0,
+		"status_code": 0,
+		"status_msg":  "ok",
 		"mac_address": mac,
 	})
 }
