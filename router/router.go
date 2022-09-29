@@ -7,7 +7,9 @@ import (
 )
 
 func InitRouter() *gin.Engine {
+
 	r := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
 
 	r.POST("/mac-config/update", v1.MacAddressUpdate)      //更新 mac 地址
 	r.GET("/mac-config/query", v1.MacAddressQuery)         // 查询mac 地址
